@@ -5,7 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
 import work.on_t.w.apub.ApPlugin
 
-fun Player.getApId(plugin: ApPlugin) = "https://${plugin.host}/players/${this.uniqueId}"
+fun Player.getApId(plugin: ApPlugin) = "${plugin.root}/players/${this.uniqueId}"
 
 fun Player.updateSavedApFollowerData(plugin: ApPlugin, lambda: (HashSet<String>) -> Unit) {
     val key = NamespacedKey(plugin, "followers")

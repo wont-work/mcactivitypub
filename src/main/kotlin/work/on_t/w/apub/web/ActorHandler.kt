@@ -1,6 +1,5 @@
 package work.on_t.w.apub.web
 
-import com.google.gson.Gson
 import com.sun.net.httpserver.HttpExchange
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.model.Actor
@@ -9,8 +8,6 @@ import work.on_t.w.apub.util.toPem
 import java.util.*
 
 class ActorHandler(private val plugin: ApPlugin) {
-    private val gson = Gson()
-
     fun handle(req: HttpExchange) {
         val (uuidStr, _) = req.requestURI.path.removePrefix("/players/").split('/', limit = 2)
 
@@ -22,20 +19,18 @@ class ActorHandler(private val plugin: ApPlugin) {
         }
 
         val id = player.getApId(plugin)
-        val response = gson.toJson(
+        val response = plugin.gson.toJson(
             Actor(
                 context = arrayOf("https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"),
                 id = id,
                 type = "Person",
                 preferredUsername = player.name,
                 name = player.displayName,
-                inbox = "https://${plugin.host}/inbox",
+                inbox = "${plugin.root}/inbox",
                 publicKey = Actor.ActorPublicKey(
-                    id = "${id}#rsa-key",
-                    owner = id,
-                    publicKeyPem = plugin.publicKey.toPem()
+                    id = "${id}#rsa-key", owner = id, publicKeyPem = plugin.publicKey.toPem()
                 ),
-                endpoints = Actor.ActorEndpoints(sharedInbox = "https://${plugin.host}/inbox")
+                endpoints = Actor.ActorEndpoints(sharedInbox = "${plugin.root}/inbox")
             )
         )
 

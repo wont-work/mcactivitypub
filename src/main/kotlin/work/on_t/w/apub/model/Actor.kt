@@ -3,8 +3,7 @@ package work.on_t.w.apub.model
 import com.google.gson.annotations.SerializedName
 
 data class Actor(
-    @SerializedName("@context")
-    val context: Array<String>,
+    @SerializedName("@context") val context: Array<String>,
     val id: String,
     val type: String,
     val preferredUsername: String,

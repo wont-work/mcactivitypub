@@ -7,7 +7,7 @@ import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.apResolve
 import work.on_t.w.apub.util.updateSavedApFollowerData
 import java.net.URI
-import java.util.UUID
+import java.util.*
 
 class InboxHandler(private val plugin: ApPlugin) {
     fun handle(req: HttpExchange) {
@@ -17,19 +17,17 @@ class InboxHandler(private val plugin: ApPlugin) {
     }
 
     private fun handleActivity(activity: JsonObject) {
-        val root = "https://${plugin.host}"
-
         val id = activity["id"].asString
         val type = activity["type"].asString
         val actor = activity["actor"].asString
 
         plugin.logger.info("Received $type activity: $id")
-        if (actor.startsWith(root)) return
+        if (actor.startsWith(plugin.root)) return
 
         if (type == "Follow") {
             val object_ = activity["object"].asString
 
-            val uuidStr = object_.removePrefix("${root}/players/")
+            val uuidStr = object_.removePrefix("${plugin.root}/players/")
             if (uuidStr == object_) return // prefix didn't exist in string
             val uuid = UUID.fromString(uuidStr)
 
@@ -47,7 +45,7 @@ class InboxHandler(private val plugin: ApPlugin) {
 
             if (innerType == "Follow") {
                 val object_ = inner["object"].asString
-                val uuidStr = object_.removePrefix("${root}/players/")
+                val uuidStr = object_.removePrefix("${plugin.root}/players/")
                 if (uuidStr == object_) return // prefix didn't exist in string
                 val uuid = UUID.fromString(uuidStr)
 

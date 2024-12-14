@@ -1,6 +1,5 @@
 package work.on_t.w.apub.web
 
-import com.google.gson.Gson
 import com.sun.net.httpserver.HttpExchange
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.model.WebfingerResponse
@@ -8,8 +7,6 @@ import work.on_t.w.apub.util.getApId
 
 
 class WebfingerHandler(val plugin: ApPlugin) {
-    val gson = Gson()
-
     fun handle(req: HttpExchange) {
         val resource = req.requestURI.query.removePrefix("resource=")
 
@@ -20,13 +17,11 @@ class WebfingerHandler(val plugin: ApPlugin) {
             return
         }
 
-        val response = gson.toJson(
+        val response = plugin.gson.toJson(
             WebfingerResponse(
                 subject = "acct:${player.name}@${plugin.host}", links = arrayOf(
                     WebfingerResponse.WebfingerLink(
-                        rel = "self",
-                        type = "application/activity+json",
-                        href = player.getApId(plugin)
+                        rel = "self", type = "application/activity+json", href = player.getApId(plugin)
                     )
                 )
             )

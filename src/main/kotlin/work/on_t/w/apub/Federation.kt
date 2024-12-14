@@ -1,6 +1,5 @@
 package work.on_t.w.apub
 
-import com.google.common.io.BaseEncoding
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.bukkit.NamespacedKey
@@ -10,11 +9,11 @@ import java.net.URI
 import java.security.MessageDigest
 
 fun apResolve(plugin: ApPlugin, object_: String): JsonObject {
-    val pdc = plugin.server.worlds.first().persistentDataContainer
     val sha384 = MessageDigest.getInstance("SHA-384")
-    val key = NamespacedKey(plugin, "cache/${BaseEncoding.base32().omitPadding().encode(sha384.digest())}")
+    sha384.update(object_.encodeToByteArray())
+    val key = NamespacedKey(plugin, "cache/${plugin.base32.encode(sha384.digest())}")
 
-    var cached = pdc.get(key, PersistentDataType.STRING)
+    var cached = plugin.persistentDataContainer.get(key, PersistentDataType.STRING)
     if (cached == null) {
         plugin.logger.info("Resolving AP object: ${object_}")
 
@@ -26,7 +25,7 @@ fun apResolve(plugin: ApPlugin, object_: String): JsonObject {
         )
         cached = connection.inputStream.readAllBytes().decodeToString()
 
-        pdc.set(key, PersistentDataType.STRING, cached)
+        plugin.persistentDataContainer.set(key, PersistentDataType.STRING, cached)
     }
 
     return JsonParser.parseString(cached).asJsonObject
