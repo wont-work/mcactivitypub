@@ -9,7 +9,6 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.security.MessageDigest
 
-
 fun apResolve(plugin: ApPlugin, object_: String): JsonObject {
     val pdc = plugin.server.worlds.first().persistentDataContainer
     val sha256 = MessageDigest.getInstance("SHA-384")
@@ -21,7 +20,10 @@ fun apResolve(plugin: ApPlugin, object_: String): JsonObject {
 
         val connection = URI(object_).toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.setRequestProperty("Accept", "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"")
+        connection.setRequestProperty(
+            "Accept",
+            "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+        )
         cached = connection.inputStream.readAllBytes().decodeToString()
 
         pdc.set(key, PersistentDataType.STRING, cached)
