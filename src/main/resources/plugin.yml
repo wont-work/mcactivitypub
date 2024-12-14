@@ -1,0 +1,4 @@
+name: mcactivitypub
+version: '1.0-SNAPSHOT'
+main: work.on_t.w.apub.ApPlugin
+api-version: '1.21'
