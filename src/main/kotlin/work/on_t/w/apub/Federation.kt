@@ -11,8 +11,8 @@ import java.security.MessageDigest
 
 fun apResolve(plugin: ApPlugin, object_: String): JsonObject {
     val pdc = plugin.server.worlds.first().persistentDataContainer
-    val sha256 = MessageDigest.getInstance("SHA-384")
-    val key = NamespacedKey(plugin, "cache/${BaseEncoding.base32().omitPadding().encode(sha256.digest())}")
+    val sha384 = MessageDigest.getInstance("SHA-384")
+    val key = NamespacedKey(plugin, "cache/${BaseEncoding.base32().omitPadding().encode(sha384.digest())}")
 
     var cached = pdc.get(key, PersistentDataType.STRING)
     if (cached == null) {
