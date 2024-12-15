@@ -1,5 +1,6 @@
 package work.on_t.w.apub
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.bukkit.NamespacedKey
@@ -16,6 +17,11 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+
+fun apResolve(plugin: ApPlugin, object_: JsonElement, player: Player? = null): JsonObject {
+    if (object_.isJsonObject) return object_.asJsonObject
+    return apResolve(plugin, object_.asString, player)
+}
 
 fun apResolve(plugin: ApPlugin, object_: String, player: Player? = null): JsonObject {
     val sha384 = MessageDigest.getInstance("SHA-384")

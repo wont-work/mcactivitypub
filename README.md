@@ -6,3 +6,4 @@ supported activities:
 
 - Follow
 - Unfollow
+- Create
