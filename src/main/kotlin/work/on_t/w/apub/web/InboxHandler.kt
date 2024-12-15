@@ -87,8 +87,8 @@ class InboxHandler(private val plugin: ApPlugin) {
                             .append(Component.text("@${URI(actorId).authority}")
                                 .color(TextColor.color(0xBEBEBE)))
                             .clickEvent(ClickEvent.openUrl(actorUrl)))
-                    .append(Component.text("> ")
-                        .append(Component.text(content)))
+                    .append(Component.text("> "))
+                    .append(Component.text(content))
             )
             // @formatter:on
         } else if (type == "Bite") {

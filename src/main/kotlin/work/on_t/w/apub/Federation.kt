@@ -80,13 +80,13 @@ fun httpSign(plugin: ApPlugin, req: HttpURLConnection, player: Player, body: Byt
 
     val rsa = Signature.getInstance("SHA256withRSA")
     rsa.initSign(plugin.privateKey)
-    rsa.update("(request-target): ${req.requestMethod.lowercase()} ${req.url.path}\nhost: ${req.url.host}\ndate: ${date}\n".encodeToByteArray())
+    rsa.update("(request-target): ${req.requestMethod.lowercase()} ${req.url.path}\nhost: ${req.url.host}\ndate: ${date}".encodeToByteArray())
     if (headers.contains("digest")) {
         val sha256 = MessageDigest.getInstance("SHA-256")
         sha256.update(body)
         val digest = "SHA-256=${Base64.encode(sha256.digest())}"
 
-        rsa.update("digest: ${digest}".encodeToByteArray())
+        rsa.update("\ndigest: ${digest}".encodeToByteArray())
         req.setRequestProperty("Digest", digest)
     }
 
