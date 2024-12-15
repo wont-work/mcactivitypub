@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
+import work.on_t.w.apub.util.getApFollowers
 import work.on_t.w.apub.util.getApId
 import java.net.HttpURLConnection
 import java.net.URI
@@ -38,8 +39,7 @@ fun apResolve(plugin: ApPlugin, object_: String, player: Player? = null): JsonOb
             "Accept", "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
         )
 
-        var player = player
-        if (player == null) player = plugin.server.onlinePlayers.firstOrNull()
+        var player = player ?: plugin.server.onlinePlayers.firstOrNull()
         if (player != null) httpSign(plugin, req, player)
 
         cached = req.inputStream.readAllBytes().decodeToString()
@@ -96,4 +96,20 @@ fun httpSign(plugin: ApPlugin, req: HttpURLConnection, player: Player, body: Byt
             Base64.encode(rsa.sign())
         }\""
     )
+}
+
+fun apBroadcast(plugin: ApPlugin, player: Player, activity: JsonObject) {
+    val followers = player.getApFollowers(plugin)
+    if (followers.isEmpty()) return
+
+    // @formatter:off
+    val inboxes = followers
+        .map { apResolve(plugin, it) }
+        .map { it["endpoints"]?.asJsonObject?.get("sharedInbox")?.asString ?: it["inbox"].asString }
+        .distinct()
+    // @formatter:on
+
+    for (inbox in inboxes) {
+        apPost(plugin, player, inbox, plugin.gson.toJson(activity).encodeToByteArray())
+    }
 }

@@ -13,3 +13,11 @@ fun Player.updateSavedApFollowerData(plugin: ApPlugin, lambda: (HashSet<String>)
     lambda(followers)
     this.persistentDataContainer.set(key, PersistentDataType.STRING, followers.joinToString(","))
 }
+
+// @formatter:off
+fun Player.getApFollowers(plugin: ApPlugin) =
+    this.persistentDataContainer
+        .getOrDefault(NamespacedKey(plugin, "followers"), PersistentDataType.STRING, "")
+        .split(',')
+        .toSet()
+// @formatter:on

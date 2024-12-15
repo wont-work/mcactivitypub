@@ -4,6 +4,9 @@ just a quick joke for the fun of it. horribly insecure (literally no validation 
 
 supported activities:
 
-- Follow
-- Unfollow
-- Create
+- Follow (in)
+    - Accept/Follow (out)
+- Unfollow (in)
+- Create (in/out)
+  - everything public
+  - outgoing created object is ephemeral / unresolvable

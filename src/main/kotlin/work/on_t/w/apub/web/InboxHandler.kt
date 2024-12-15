@@ -76,6 +76,7 @@ class InboxHandler(private val plugin: ApPlugin) {
             val object_ = apResolve(plugin, activity["object"])
             val actor = apResolve(plugin, object_["attributedTo"])
             val actorId = actor["id"].asString
+            val actorUrl = actor["url"]?.asString ?: actorId
             val content = object_["content"].asString
 
             // @formatter:off
@@ -84,7 +85,7 @@ class InboxHandler(private val plugin: ApPlugin) {
                     .append(Component.text(actor["preferredUsername"].asString)
                             .append(Component.text("@${URI(actorId).authority}")
                                 .color(TextColor.color(0xBEBEBE)))
-                            .clickEvent(ClickEvent.openUrl(actorId)))
+                            .clickEvent(ClickEvent.openUrl(actorUrl)))
                     .append(Component.text("> ")
                         .append(Component.text(content)))
             )

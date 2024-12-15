@@ -2,12 +2,11 @@ package work.on_t.w.apub
 
 import com.google.common.io.BaseEncoding
 import com.google.gson.Gson
-import com.mojang.brigadier.Command
-import io.papermc.paper.command.brigadier.Commands
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.plugin.java.JavaPlugin
 import work.on_t.w.apub.command.ApResolveCommand
+import work.on_t.w.apub.listener.ChatListener
 import work.on_t.w.apub.web.ApHandler
 import java.io.FileNotFoundException
 import java.security.KeyFactory
@@ -57,6 +56,8 @@ class ApPlugin : JavaPlugin() {
 
         loadKeypair()
         ApHandler.start(this)
+
+        server.pluginManager.registerEvents(ChatListener(this), this)
 
         lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) {
             val registrar = it.registrar()

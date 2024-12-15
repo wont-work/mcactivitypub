@@ -1,6 +1,7 @@
 package work.on_t.w.apub.web
 
 import com.sun.net.httpserver.HttpExchange
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.model.Actor
 import work.on_t.w.apub.util.getApId
@@ -26,7 +27,7 @@ class ActorHandler(private val plugin: ApPlugin) {
                 id = id,
                 type = "Person",
                 preferredUsername = player.name,
-                name = player.displayName,
+                name = PlainTextComponentSerializer.plainText().serialize(player.displayName()),
                 inbox = "${plugin.root}/inbox",
                 publicKey = Actor.ActorPublicKey(
                     id = "${id}#rsa-key", owner = id, publicKeyPem = plugin.publicKey.toPem()
