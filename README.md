@@ -10,3 +10,4 @@ supported activities:
 - Create (in/out)
   - everything public
   - outgoing created object is ephemeral / unresolvable
+- [Bite](https://ns.mia.jetzt/as/) (in)

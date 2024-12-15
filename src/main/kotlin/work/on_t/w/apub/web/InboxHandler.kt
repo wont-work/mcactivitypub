@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.format.TextColor
+import org.bukkit.scheduler.BukkitRunnable
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.apPost
 import work.on_t.w.apub.apResolve
@@ -90,6 +91,23 @@ class InboxHandler(private val plugin: ApPlugin) {
                         .append(Component.text(content)))
             )
             // @formatter:on
+        } else if (type == "Bite") {
+            val target = activity["target"].asString
+
+            val (uuidStr) = target.removePrefix("${plugin.root}/players/").split('/', limit = 2)
+            if (uuidStr == target) return // prefix didn't exist in string
+            val uuid = UUID.fromString(uuidStr)
+            val player = plugin.server.getPlayer(uuid) ?: return
+
+            val resolved = apResolve(plugin, actor)
+            val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
+
+            object : BukkitRunnable() {
+                override fun run() {
+                    player.damage(1.0)
+                    player.sendMessage("$resolvedHandle bit you")
+                }
+            }.runTask(plugin)
         }
     }
 }

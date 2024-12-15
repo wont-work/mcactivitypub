@@ -23,7 +23,7 @@ class ChatListener(private val plugin: ApPlugin) : Listener {
             actor = playerId,
             object_ = Note(
                 context = arrayOf("https://www.w3.org/ns/activitystreams"),
-                id = "${plugin.root}/note/${System.currentTimeMillis()}",
+                id = "${playerId}/note/${System.currentTimeMillis()}",
                 type = "Note",
                 to = arrayOf("https://www.w3.org/ns/activitystreams#Public"),
                 attributedTo = playerId,
