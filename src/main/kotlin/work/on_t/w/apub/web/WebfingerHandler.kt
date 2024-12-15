@@ -10,8 +10,10 @@ class WebfingerHandler(val plugin: ApPlugin) {
     fun handle(req: HttpExchange) {
         val resource = req.requestURI.query.removePrefix("resource=")
 
-        val (handle, _) = resource.removePrefix("acct:").split('@', limit = 2)
-        val player = plugin.server.onlinePlayers.find { it.name.equals(handle, ignoreCase = true) }
+        val (username, _) = resource.removePrefix("acct:").split('@', limit = 2)
+        plugin.logger.info("Received webfinger request for $username")
+
+        val player = plugin.server.getPlayerExact(username)
         if (player == null) {
             req.sendResponseHeaders(404, 0)
             return

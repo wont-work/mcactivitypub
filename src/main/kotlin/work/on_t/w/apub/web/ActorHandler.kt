@@ -10,9 +10,10 @@ import java.util.*
 class ActorHandler(private val plugin: ApPlugin) {
     fun handle(req: HttpExchange) {
         val (uuidStr, _) = req.requestURI.path.removePrefix("/players/").split('/', limit = 2)
+        plugin.logger.info("Received GET for player $uuidStr")
 
         val uuid = UUID.fromString(uuidStr)
-        val player = plugin.server.onlinePlayers.find { it.uniqueId == uuid }
+        val player = plugin.server.getPlayer(uuid)
         if (player == null) {
             req.sendResponseHeaders(404, 0)
             return

@@ -4,9 +4,13 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.sun.net.httpserver.HttpExchange
 import work.on_t.w.apub.ApPlugin
+import work.on_t.w.apub.apPost
 import work.on_t.w.apub.apResolve
+import work.on_t.w.apub.model.Accept
+import work.on_t.w.apub.util.getApId
 import work.on_t.w.apub.util.updateSavedApFollowerData
 import java.net.URI
+import java.time.Instant
 import java.util.*
 
 class InboxHandler(private val plugin: ApPlugin) {
@@ -30,12 +34,20 @@ class InboxHandler(private val plugin: ApPlugin) {
             val uuidStr = object_.removePrefix("${plugin.root}/players/")
             if (uuidStr == object_) return // prefix didn't exist in string
             val uuid = UUID.fromString(uuidStr)
-
-            val player = plugin.server.onlinePlayers.find { it.uniqueId == uuid }
-            if (player == null) return
+            val player = plugin.server.getPlayer(uuid) ?: return
 
             val resolved = apResolve(plugin, actor)
             val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
+
+            val playerId = player.getApId(plugin)
+            val response = plugin.gson.toJson(Accept(
+                context = arrayOf("https://www.w3.org/ns/activitystreams"),
+                id = "${playerId}#accept/${System.currentTimeMillis()}",
+                type = "Accept",
+                actor = playerId,
+                object_ = activity
+            ))
+            apPost(plugin, player, resolved["inbox"].asString, response.encodeToByteArray())
 
             player.updateSavedApFollowerData(plugin) { it.add(actor) }
             player.sendMessage("$resolvedHandle is now following you!")
@@ -48,9 +60,7 @@ class InboxHandler(private val plugin: ApPlugin) {
                 val uuidStr = object_.removePrefix("${plugin.root}/players/")
                 if (uuidStr == object_) return // prefix didn't exist in string
                 val uuid = UUID.fromString(uuidStr)
-
-                val player = plugin.server.onlinePlayers.find { it.uniqueId == uuid }
-                if (player == null) return
+                val player = plugin.server.getPlayer(uuid) ?: return
 
                 val resolved = apResolve(plugin, actor)
                 val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
