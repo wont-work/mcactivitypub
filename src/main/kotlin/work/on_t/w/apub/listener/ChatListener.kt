@@ -1,7 +1,6 @@
 package work.on_t.w.apub.listener
 
 import io.papermc.paper.event.player.AsyncChatEvent
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -16,14 +15,15 @@ class ChatListener(private val plugin: ApPlugin) : Listener {
     @EventHandler
     fun onAsyncChat(event: AsyncChatEvent) {
         val playerId = event.player.getApId(plugin)
+        val noteId = "${playerId}/note/${System.currentTimeMillis()}"
         val activity = Create(
             context = arrayOf("https://www.w3.org/ns/activitystreams"),
-            id = "${playerId}#accept/${System.currentTimeMillis()}",
+            id = "$noteId/activity",
             type = "Create",
             actor = playerId,
             object_ = Note(
                 context = arrayOf("https://www.w3.org/ns/activitystreams"),
-                id = "${playerId}/note/${System.currentTimeMillis()}",
+                id = noteId,
                 type = "Note",
                 to = arrayOf("https://www.w3.org/ns/activitystreams#Public"),
                 attributedTo = playerId,

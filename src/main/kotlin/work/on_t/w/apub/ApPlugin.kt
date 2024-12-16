@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.plugin.java.JavaPlugin
+import work.on_t.w.apub.command.ApFollowCommand
 import work.on_t.w.apub.command.ApResolveCommand
 import work.on_t.w.apub.listener.ChatListener
 import work.on_t.w.apub.web.ApHandler
@@ -62,6 +63,7 @@ class ApPlugin : JavaPlugin() {
         lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) {
             val registrar = it.registrar()
             registrar.register("apresolve", "Resolve AP object", ApResolveCommand(this))
+            registrar.register("apfolllow", "Follow AP user", ApFollowCommand(this))
         }
     }
 }

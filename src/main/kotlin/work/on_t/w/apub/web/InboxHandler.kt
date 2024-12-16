@@ -10,9 +10,10 @@ import org.bukkit.scheduler.BukkitRunnable
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.apPost
 import work.on_t.w.apub.apResolve
-import work.on_t.w.apub.model.Accept
+import work.on_t.w.apub.model.Activity
 import work.on_t.w.apub.util.getApId
 import work.on_t.w.apub.util.updateSavedApFollowerData
+import work.on_t.w.apub.util.updateSavedApFollowingData
 import java.net.URI
 import java.util.*
 
@@ -47,9 +48,10 @@ class InboxHandler(private val plugin: ApPlugin) {
 
             val playerId = player.getApId(plugin)
             val response = plugin.gson.toJson(
-                Accept(
+                Activity(
                     context = arrayOf("https://www.w3.org/ns/activitystreams"),
-                    id = "${playerId}#accept/${System.currentTimeMillis()}",
+                    id = "${playerId}/accept/${System.currentTimeMillis()}",
+                    to = arrayOf(actor),
                     type = "Accept",
                     actor = playerId,
                     object_ = activity
@@ -59,6 +61,23 @@ class InboxHandler(private val plugin: ApPlugin) {
 
             player.updateSavedApFollowerData(plugin) { it.add(actor) }
             player.sendMessage("$resolvedHandle is now following you!")
+        } else if (type == "Accept") {
+            val inner = activity["object"].asJsonObject
+            val innerType = inner["type"].asString
+
+            if (innerType == "Follow") {
+                val object_ = inner["actor"].asString
+                val uuidStr = object_.removePrefix("${plugin.root}/players/")
+                if (uuidStr == object_) return // prefix didn't exist in string
+                val uuid = UUID.fromString(uuidStr)
+                val player = plugin.server.getPlayer(uuid) ?: return
+
+                val resolved = apResolve(plugin, actor)
+                val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
+
+                player.updateSavedApFollowingData(plugin) { it.add(actor) }
+                player.sendMessage("$resolvedHandle accepted your follow request")
+            }
         } else if (type == "Undo") {
             val inner = activity["object"].asJsonObject
             val innerType = inner["type"].asString

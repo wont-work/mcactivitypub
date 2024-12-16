@@ -14,6 +14,13 @@ fun Player.updateSavedApFollowerData(plugin: ApPlugin, lambda: (HashSet<String>)
     this.persistentDataContainer.set(key, PersistentDataType.STRING, followers.joinToString(","))
 }
 
+fun Player.updateSavedApFollowingData(plugin: ApPlugin, lambda: (HashSet<String>) -> Unit) {
+    val key = NamespacedKey(plugin, "following")
+    val followers = this.persistentDataContainer.getOrDefault(key, PersistentDataType.STRING, "").split(',').toHashSet()
+    lambda(followers)
+    this.persistentDataContainer.set(key, PersistentDataType.STRING, followers.joinToString(","))
+}
+
 // @formatter:off
 fun Player.getApFollowers(plugin: ApPlugin) =
     this.persistentDataContainer

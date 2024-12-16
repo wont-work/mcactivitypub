@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
+import work.on_t.w.apub.model.WebfingerResponse
 import work.on_t.w.apub.util.getApFollowers
 import work.on_t.w.apub.util.getApId
 import java.net.HttpURLConnection
@@ -115,4 +116,32 @@ fun apBroadcast(plugin: ApPlugin, player: Player, activity: JsonObject) {
     for (inbox in inboxes) {
         apPost(plugin, player, inbox, plugin.gson.toJson(activity).encodeToByteArray())
     }
+}
+
+fun webfingerResolve(plugin: ApPlugin, handle: String): String? {
+    val handle = handle.trimStart('@')
+
+    val sha384 = MessageDigest.getInstance("SHA-384")
+    sha384.update(handle.encodeToByteArray())
+    val key = NamespacedKey(plugin, "cache/webfinger/${plugin.base32.encode(sha384.digest())}")
+
+    var cached = plugin.persistentDataContainer.get(key, PersistentDataType.STRING)
+    if (cached == null) {
+        plugin.logger.info("Resolving Webfinger handle: ${handle}")
+
+        val (_, host) = handle.split('@', limit = 2)
+
+        val req = URI("https://$host/.well-known/webfinger?resource=acct:$handle").toURL()
+            .openConnection() as HttpURLConnection
+        req.requestMethod = "GET"
+        req.setRequestProperty("Accept", "application/jrd+json")
+
+        val response = plugin.gson.fromJson(req.inputStream.bufferedReader(), WebfingerResponse::class.java)
+        cached = response.links.firstOrNull { it.rel == "self" && it.type == "application/activity+json" || it.type == "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"" }?.href
+
+        if (cached != null) plugin.persistentDataContainer.set(key, PersistentDataType.STRING, cached)
+        else plugin.persistentDataContainer.remove(key)
+    }
+
+    return cached
 }
