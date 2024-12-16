@@ -95,7 +95,7 @@ class InboxHandler(private val plugin: ApPlugin) {
             )
             // @formatter:on
         } else if (type == "Bite") {
-            val target = activity["target"].asString
+            val target = activity["to"].asJsonArray.firstOrNull()?.asString ?: return
 
             val (uuidStr) = target.removePrefix("${plugin.root}/players/").split('/', limit = 2)
             if (uuidStr == target) return // prefix didn't exist in string

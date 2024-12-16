@@ -1,6 +1,5 @@
 package work.on_t.w.apub.model
 
-import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 
 data class Create(
