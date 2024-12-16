@@ -16,6 +16,9 @@ import work.on_t.w.apub.util.updateSavedApFollowerData
 import java.net.URI
 import java.util.*
 
+// janky hack to clean up all html tags from content
+val htmlTagRegex = Regex("<.*?>")
+
 class InboxHandler(private val plugin: ApPlugin) {
     fun handle(req: HttpExchange) {
         handleActivity(JsonParser.parseReader(req.requestBody.bufferedReader()).asJsonObject)
@@ -78,7 +81,7 @@ class InboxHandler(private val plugin: ApPlugin) {
             val actor = apResolve(plugin, object_["attributedTo"])
             val actorId = actor["id"].asString
             val actorUrl = actor["url"]?.asString ?: actorId
-            val content = object_["content"].asString
+            val content = object_["content"].asString.replace(htmlTagRegex, "")
 
             // @formatter:off
             plugin.server.broadcast(

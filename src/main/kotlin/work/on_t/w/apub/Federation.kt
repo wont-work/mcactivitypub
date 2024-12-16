@@ -90,12 +90,15 @@ fun httpSign(plugin: ApPlugin, req: HttpURLConnection, player: Player, body: Byt
         req.setRequestProperty("Digest", digest)
     }
 
+    // @formatter:off
     req.setRequestProperty(
         "Signature",
-        "keyId=\"${player.getApId(plugin)}#rsa-key\",algorithm=\"rsa-sha256\",headers=\"${headers.joinToString(" ")}\",signature=\"${
-            Base64.encode(rsa.sign())
-        }\""
+        "keyId=\"${player.getApId(plugin)}#rsa-key\"," +
+        "algorithm=\"rsa-sha256\"," +
+        "headers=\"${headers.joinToString(" ")}\"," +
+        "signature=\"${Base64.encode(rsa.sign())}\""
     )
+    // @formatter:on
 }
 
 fun apBroadcast(plugin: ApPlugin, player: Player, activity: JsonObject) {
