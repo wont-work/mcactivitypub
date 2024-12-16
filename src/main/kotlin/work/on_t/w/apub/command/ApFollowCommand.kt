@@ -2,12 +2,14 @@ package work.on_t.w.apub.command
 
 import io.papermc.paper.command.brigadier.BasicCommand
 import io.papermc.paper.command.brigadier.CommandSourceStack
+import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.apPost
 import work.on_t.w.apub.apResolve
 import work.on_t.w.apub.model.Activity
 import work.on_t.w.apub.util.getApId
+import work.on_t.w.apub.util.renderHandle
 import work.on_t.w.apub.webfingerResolve
 
 class ApFollowCommand(private val plugin: ApPlugin) : BasicCommand {
@@ -44,6 +46,6 @@ class ApFollowCommand(private val plugin: ApPlugin) : BasicCommand {
         )
 
         apPost(plugin, player, actor["inbox"].asString, response.encodeToByteArray())
-        source.sender.sendMessage("Follow request sent")
+        source.sender.sendMessage(Component.text("Follow request sent to ").append(renderHandle(actor)))
     }
 }

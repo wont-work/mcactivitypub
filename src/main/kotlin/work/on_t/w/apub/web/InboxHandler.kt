@@ -4,17 +4,15 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.sun.net.httpserver.HttpExchange
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.event.ClickEvent
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.scheduler.BukkitRunnable
 import work.on_t.w.apub.ApPlugin
 import work.on_t.w.apub.apPost
 import work.on_t.w.apub.apResolve
 import work.on_t.w.apub.model.Activity
 import work.on_t.w.apub.util.getApId
+import work.on_t.w.apub.util.renderHandle
 import work.on_t.w.apub.util.updateSavedApFollowerData
 import work.on_t.w.apub.util.updateSavedApFollowingData
-import java.net.URI
 import java.util.*
 
 // janky hack to clean up all html tags from content
@@ -42,9 +40,7 @@ class InboxHandler(private val plugin: ApPlugin) {
             if (uuidStr == object_) return // prefix didn't exist in string
             val uuid = UUID.fromString(uuidStr)
             val player = plugin.server.getPlayer(uuid) ?: return
-
             val resolved = apResolve(plugin, actor)
-            val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
 
             val playerId = player.getApId(plugin)
             val response = plugin.gson.toJson(
@@ -60,7 +56,7 @@ class InboxHandler(private val plugin: ApPlugin) {
             apPost(plugin, player, resolved["inbox"].asString, response.encodeToByteArray())
 
             player.updateSavedApFollowerData(plugin) { it.add(actor) }
-            player.sendMessage("$resolvedHandle is now following you!")
+            player.sendMessage(renderHandle(resolved).append(Component.text(" is now following you")))
         } else if (type == "Accept") {
             val inner = activity["object"].asJsonObject
             val innerType = inner["type"].asString
@@ -71,12 +67,10 @@ class InboxHandler(private val plugin: ApPlugin) {
                 if (uuidStr == object_) return // prefix didn't exist in string
                 val uuid = UUID.fromString(uuidStr)
                 val player = plugin.server.getPlayer(uuid) ?: return
-
                 val resolved = apResolve(plugin, actor)
-                val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
 
                 player.updateSavedApFollowingData(plugin) { it.add(actor) }
-                player.sendMessage("$resolvedHandle accepted your follow request")
+                player.sendMessage(renderHandle(resolved).append(Component.text(" accepted your follow request")))
             }
         } else if (type == "Undo") {
             val inner = activity["object"].asJsonObject
@@ -88,27 +82,20 @@ class InboxHandler(private val plugin: ApPlugin) {
                 if (uuidStr == object_) return // prefix didn't exist in string
                 val uuid = UUID.fromString(uuidStr)
                 val player = plugin.server.getPlayer(uuid) ?: return
-
                 val resolved = apResolve(plugin, actor)
-                val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
 
                 player.updateSavedApFollowerData(plugin) { it.remove(actor) }
-                player.sendMessage("$resolvedHandle is no longer following you")
+                player.sendMessage(renderHandle(resolved).append(Component.text(" is no longer following you")))
             }
         } else if (type == "Create") {
             val object_ = apResolve(plugin, activity["object"])
             val actor = apResolve(plugin, object_["attributedTo"])
-            val actorId = actor["id"].asString
-            val actorUrl = actor["url"]?.asString ?: actorId
             val content = object_["content"].asString.replace(htmlTagRegex, "")
 
             // @formatter:off
             plugin.server.broadcast(
                 Component.text("<")
-                    .append(Component.text(actor["preferredUsername"].asString)
-                            .append(Component.text("@${URI(actorId).authority}")
-                                .color(TextColor.color(0xBEBEBE)))
-                            .clickEvent(ClickEvent.openUrl(actorUrl)))
+                    .append(renderHandle(actor))
                     .append(Component.text("> "))
                     .append(Component.text(content))
             )
@@ -120,14 +107,12 @@ class InboxHandler(private val plugin: ApPlugin) {
             if (uuidStr == target) return // prefix didn't exist in string
             val uuid = UUID.fromString(uuidStr)
             val player = plugin.server.getPlayer(uuid) ?: return
-
             val resolved = apResolve(plugin, actor)
-            val resolvedHandle = "${resolved["preferredUsername"].asString}@${URI(actor).authority}"
 
             object : BukkitRunnable() {
                 override fun run() {
                     player.damage(1.0)
-                    player.sendMessage("$resolvedHandle bit you")
+                    player.sendMessage(renderHandle(resolved).append(Component.text(" bit you")))
                 }
             }.runTask(plugin)
         }
